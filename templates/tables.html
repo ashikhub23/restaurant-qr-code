@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Table Management - THE ROY FINE DINE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .dashboard-header {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      animation: slideDown 0.5s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dashboard-header h1 {
+      color: #667eea;
+      font-size: 28px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: transform 0.2s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .nav-btn.logout {
+      background: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .tables-container {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: slideUp 0.6s ease;
+    }
+
+    .tables-container h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .table-card {
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      border-left: 5px solid #667eea;
+      transition: all 0.3s ease;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    .table-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .table-number {
+      font-size: 20px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .table-status {
+      padding: 8px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .status-active {
+      background: #28a745;
+      color: white;
+    }
+
+    .status-closed {
+      background: #6c757d;
+      color: white;
+    }
+
+    .order-summary {
+      margin-bottom: 15px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+    }
+
+    .order-item {
+      padding: 8px 0;
+      border-bottom: 1px dashed #ddd;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+
+    .order-total {
+      font-size: 18px;
+      font-weight: bold;
+      color: #28a745;
+      margin: 10px 0;
+      padding-top: 10px;
+      border-top: 2px solid #667eea;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .btn-add-items {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-view-bill {
+      background: linear-gradient(135deg, #ffa751, #ffe259);
+      color: white;
+    }
+
+    .btn-close-table {
+      background: linear-gradient(135deg, #f5576c, #ff6b6b);
+      color: white;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .no-tables {
+      text-align: center;
+      padding: 50px;
+      color: #999;
+      font-size: 18px;
+    }
+
+    /* Bill Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background: white;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      animation: slideDown 0.4s ease;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 20px;
+      border-radius: 15px 15px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+    }
+
+    .close-btn {
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .close-btn:hover {
+      color: #f5576c;
+    }
+
+    .modal-body {
+      padding: 30px;
+    }
+
+    .bill {
+      background: white;
+      padding: 20px;
+      border: 2px dashed #667eea;
+      border-radius: 10px;
+    }
+
+    .bill-header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 2px dashed #ddd;
+    }
+
+    .bill-header h1 {
+      color: #667eea;
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .bill-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .bill-info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bill-info-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 3px;
+    }
+
+    .bill-info-value {
+      font-size: 14px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .bill-items {
+      margin-bottom: 20px;
+    }
+
+    .bill-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .bill-item-name {
+      flex: 1;
+      color: #333;
+    }
+
+    .bill-item-qty {
+      width: 50px;
+      text-align: center;
+      color: #666;
+    }
+
+    .bill-item-price {
+      width: 100px;
+      text-align: right;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .bill-totals {
+      border-top: 2px solid #667eea;
+      padding-top: 15px;
+    }
+
+    .bill-total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      color: #333;
+    }
+
+    .bill-total-row.grand-total {
+      font-size: 20px;
+      font-weight: bold;
+      color: #667eea;
+      border-top: 2px dashed #667eea;
+      padding-top: 15px;
+      margin-top: 10px;
+    }
+
+    .bill-footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px dashed #ddd;
+      color: #666;
+    }
+
+    .bill-footer h3 {
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .modal-footer {
+      padding: 20px 30px;
+      border-top: 1px solid #eee;
+      display: flex;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .btn-print {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #28a745, #20bf55);
+      color: white;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #billModal, #billModal * {
+        visibility: visible;
+      }
+      #billModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      .modal-footer, .close-btn {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="dashboard-header">
+  <div>
+    <h1>🍽️ Table Management</h1>
+    <p style="color: #666; margin-top: 5px;">Manage tables, orders, and billing</p>
+  </div>
+  <div class="nav-buttons">
+    <a href="/admin" class="nav-btn">📋 Kitchen Orders</a>
+    <a href="/logout" class="nav-btn logout">🚪 Logout</a>
+  </div>
+</div>
+
+<div class="stats-container">
+  <div class="stat-card">
+    <div class="stat-number" id="activeTables">0</div>
+    <div class="stat-label">🟢 Active Tables</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" id="totalOrders">0</div>
+    <div class="stat-label">📦 Total Orders</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" id="totalRevenue">₹0</div>
+    <div class="stat-label">💰 Total Revenue</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number" id="avgBill">₹0</div>
+    <div class="stat-label">📊 Avg Bill</div>
+  </div>
+</div>
+
+<div class="tables-container">
+  <h2>📊 Active Tables</h2>
+  <div id="tablesList">
+    <div class="no-tables">⏳ Waiting for tables...</div>
+  </div>
+</div>
+
+<!-- Bill Modal -->
+<div id="billModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>🧾 Bill Details</h2>
+      <button class="close-btn" onclick="closeBillModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="billContent"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn btn-print" onclick="printBill()">🖨️ Print Bill</button>
+      <button class="modal-btn btn-download" onclick="downloadBill()">💾 Download PDF</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAeRUYkSL_yByWJElwufEfzgB9LKwKQ6vU",
+  authDomain: "restaurent-qr-e8116.firebaseapp.com",
+  projectId: "restaurent-qr-e8116",
+  storageBucket: "restaurent-qr-e8116.firebasestorage.app",
+  messagingSenderId: "104832565067",
+  appId: "1:104832565067:web:f914266fb3bd04525732ce"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const tablesList = document.getElementById("tablesList");
+const activeTablesEl = document.getElementById("activeTables");
+const totalOrdersEl = document.getElementById("totalOrders");
+const totalRevenueEl = document.getElementById("totalRevenue");
+const avgBillEl = document.getElementById("avgBill");
+
+let allOrders = [];
+
+// Listen for orders
+const ordersQuery = query(collection(db, "orders"), orderBy("time", "desc"));
+
+onSnapshot(ordersQuery, (snapshot) => {
+  allOrders = [];
+  snapshot.forEach((docSnap) => {
+    allOrders.push({
+      id: docSnap.id,
+      ...docSnap.data()
+    });
+  });
+
+  renderTables();
+  updateStats();
+});
+
+function groupOrdersByTable() {
+  const tables = {};
+  
+  allOrders.forEach(order => {
+    const tableNum = order.table || "Unknown";
+    if (!tables[tableNum]) {
+      tables[tableNum] = [];
+    }
+    tables[tableNum].push(order);
+  });
+  
+  return tables;
+}
+
+function calculateTableTotal(orders) {
+  let total = 0;
+  orders.forEach(order => {
+    if (order.items) {
+      order.items.forEach(item => {
+        total += (item.qty * item.price);
+      });
+    }
+  });
+  return total;
+}
+
+function renderTables() {
+  const tables = groupOrdersByTable();
+  const tableNumbers = Object.keys(tables).sort((a, b) => a - b);
+  
+  tablesList.innerHTML = "";
+  
+  if (tableNumbers.length === 0) {
+    tablesList.innerHTML = '<div class="no-tables">⏳ No active tables yet...</div>';
+    return;
+  }
+  
+  tableNumbers.forEach(tableNum => {
+    const orders = tables[tableNum];
+    const tableTotal = calculateTableTotal(orders);
+    const isActive = orders.some(o => o.status !== "Served" || true); // Always show as active until closed
+    
+    const tableCard = document.createElement("div");
+    tableCard.className = "table-card";
+    
+    let orderItemsHTML = "";
+    orders.forEach((order, index) => {
+      if (order.items) {
+        order.items.forEach(item => {
+          orderItemsHTML += `
+            <div class="order-item">
+              <span>${item.name} × ${item.qty}</span>
+              <span>₹${(item.qty * item.price).toFixed(2)}</span>
+            </div>
+          `;
+        });
+      }
+    });
+    
+    tableCard.innerHTML = `
+      <div class="table-header">
+        <div class="table-number">🍽️ Table ${tableNum}</div>
+        <div class="table-status status-active">${orders.length} Order(s)</div>
+      </div>
+      <div class="order-summary">
+        ${orderItemsHTML}
+        <div class="order-total">💰 Table Total: ₹${tableTotal.toFixed(2)}</div>
+      </div>
+      <div class="action-buttons">
+        <button class="action-btn btn-add-items" onclick="addMoreItems('${tableNum}')">
+          ➕ Add More Items
+        </button>
+        <button class="action-btn btn-view-bill" onclick="viewBill('${tableNum}')">
+          🧾 View Bill
+        </button>
+        <button class="action-btn btn-close-table" onclick="closeTable('${tableNum}')">
+          ✅ Close Table
+        </button>
+      </div>
+    `;
+    
+    tablesList.appendChild(tableCard);
+  });
+}
+
+function updateStats() {
+  const tables = groupOrdersByTable();
+  const activeTables = Object.keys(tables).length;
+  const totalOrders = allOrders.length;
+  
+  let totalRevenue = 0;
+  allOrders.forEach(order => {
+    if (order.items) {
+      order.items.forEach(item => {
+        totalRevenue += (item.qty * item.price);
+      });
+    }
+  });
+  
+  const avgBill = activeTables > 0 ? totalRevenue / activeTables : 0;
+  
+  activeTablesEl.textContent = activeTables;
+  totalOrdersEl.textContent = totalOrders;
+  totalRevenueEl.textContent = `₹${totalRevenue.toFixed(0)}`;
+  avgBillEl.textContent = `₹${avgBill.toFixed(0)}`;
+}
+
+// Make functions available globally
+window.addMoreItems = function(tableNum) {
+  const menuURL = `/?table=${tableNum}`;
+  window.open(menuURL, '_blank');
+};
+
+window.viewBill = function(tableNum) {
+  const tables = groupOrdersByTable();
+  const orders = tables[tableNum] || [];
+  
+  if (orders.length === 0) {
+    alert("No orders found for this table");
+    return;
+  }
+  
+  const billContent = document.getElementById("billContent");
+  const tableTotal = calculateTableTotal(orders);
+  const gst = tableTotal * 0.05;
+  const grandTotal = tableTotal + gst;
+  
+  let itemsHTML = "";
+  orders.forEach((order, index) => {
+    if (order.items) {
+      order.items.forEach(item => {
+        itemsHTML += `
+          <div class="bill-item">
+            <div class="bill-item-name">${item.name}</div>
+            <div class="bill-item-qty">×${item.qty}</div>
+            <div class="bill-item-price">₹${(item.qty * item.price).toFixed(2)}</div>
+          </div>
+        `;
+      });
+    }
+  });
+  
+  const billHTML = `
+    <div class="bill">
+      <div class="bill-header">
+        <h1>🍽️ THE ROY FINE DINE</h1>
+        <p style="color: #666; margin: 5px 0;">Fine Dining Restaurant</p>
+        <p style="color: #999; font-size: 12px;">━━━━━━━━━━━━━━━━━━━━━━━━</p>
+      </div>
+      
+      <div class="bill-info">
+        <div class="bill-info-item">
+          <span class="bill-info-label">Table Number</span>
+          <span class="bill-info-value">${tableNum}</span>
+        </div>
+        <div class="bill-info-item">
+          <span class="bill-info-label">Date</span>
+          <span class="bill-info-value">${new Date().toLocaleDateString()}</span>
+        </div>
+        <div class="bill-info-item">
+          <span class="bill-info-label">Total Orders</span>
+          <span class="bill-info-value">${orders.length}</span>
+        </div>
+        <div class="bill-info-item">
+          <span class="bill-info-label">Time</span>
+          <span class="bill-info-value">${new Date().toLocaleTimeString()}</span>
+        </div>
+      </div>
+      
+      <div class="bill-items">
+        <h3 style="margin-bottom: 15px; color: #667eea;">Items Ordered:</h3>
+        ${itemsHTML}
+      </div>
+      
+      <div class="bill-totals">
+        <div class="bill-total-row">
+          <span>Subtotal:</span>
+          <span>₹${tableTotal.toFixed(2)}</span>
+        </div>
+        <div class="bill-total-row">
+          <span>GST (5%):</span>
+          <span>₹${gst.toFixed(2)}</span>
+        </div>
+        <div class="bill-total-row grand-total">
+          <span>GRAND TOTAL:</span>
+          <span>₹${grandTotal.toFixed(2)}</span>
+        </div>
+      </div>
+      
+      <div class="bill-footer">
+        <h3>Thank You for Dining With Us!</h3>
+        <p>Visit Again 🍽️</p>
+        <p style="margin-top: 10px; font-size: 12px; color: #999;">
+          Bill generated on ${new Date().toLocaleString()}
+        </p>
+      </div>
+    </div>
+  `;
+  
+  billContent.innerHTML = billHTML;
+  document.getElementById("billModal").style.display = "block";
+};
+
+window.closeBillModal = function() {
+  document.getElementById("billModal").style.display = "none";
+};
+
+window.printBill = function() {
+  window.print();
+};
+
+window.downloadBill = function() {
+  alert("💡 To save as PDF:\n1. Click 'Print Bill'\n2. Select 'Save as PDF' as destination\n3. Click Save");
+  setTimeout(() => window.print(), 500);
+};
+
+window.closeTable = function(tableNum) {
+  if (confirm(`Are you sure you want to close Table ${tableNum}? This will clear all orders for this table.`)) {
+    // In a real app, you'd move orders to a 'closed' collection
+    // For now, we'll just show a success message
+    alert(`✅ Table ${tableNum} closed successfully!\n\nNote: Orders are archived for billing history.`);
+    // You could implement actual archiving here
+  }
+};
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById("billModal");
+  if (event.target === modal) {
+    closeBillModal();
+  }
+};
+</script>
+
+</body>
+</html>

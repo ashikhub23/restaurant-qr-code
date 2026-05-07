@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Track Order - THE ROY FINE DINE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .track-container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 500px;
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .track-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .track-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 40px;
+      box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .track-header h1 {
+      color: #333;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .track-header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .order-id {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 30px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .status-tracker {
+      margin: 40px 0;
+    }
+
+    .status-step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      position: relative;
+      opacity: 0.4;
+      transition: all 0.5s ease;
+    }
+
+    .status-step.active {
+      opacity: 1;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .status-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 25px;
+      top: 50px;
+      width: 3px;
+      height: 30px;
+      background: #e0e0e0;
+      transition: background 0.5s ease;
+    }
+
+    .status-step.active:not(:last-child)::after {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .status-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-right: 20px;
+      flex-shrink: 0;
+      transition: all 0.5s ease;
+    }
+
+    .status-step.active .status-icon {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);
+      }
+      50% {
+        box-shadow: 0 10px 50px rgba(245, 87, 108, 0.6);
+      }
+    }
+
+    .status-content {
+      flex: 1;
+    }
+
+    .status-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .status-description {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .status-time {
+      color: #999;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      font-size: 18px;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #f5576c;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      background: #f5576c;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-link {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .back-link a {
+      color: #f5576c;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .back-link a:hover {
+      color: #f093fb;
+      text-decoration: underline;
+    }
+
+    .success-message {
+      background: linear-gradient(135deg, #28a745 0%, #20bf55 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      margin-top: 30px;
+      animation: celebration 0.6s ease;
+    }
+
+    @keyframes celebration {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .success-message h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .success-message p {
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="track-container">
+  <div class="track-header">
+    <div class="track-icon">📦</div>
+    <h1>Track Your Order</h1>
+    <p>Real-time status updates</p>
+  </div>
+
+  <div class="order-id" id="orderIdDisplay">
+    Order ID: Loading...
+  </div>
+
+  <div id="statusTracker" class="status-tracker">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <div>Loading your order status...</div>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <a href="/">← Back to Menu</a>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAeRUYkSL_yByWJElwufEfzgB9LKwKQ6vU",
+  authDomain: "restaurent-qr-e8116.firebaseapp.com",
+  projectId: "restaurent-qr-e8116",
+  storageBucket: "restaurent-qr-e8116.firebasestorage.app",
+  messagingSenderId: "104832565067",
+  appId: "1:104832565067:web:f914266fb3bd04525732ce"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Get order ID from URL
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get("orderId");
+
+const trackerContainer = document.getElementById("statusTracker");
+const orderIdDisplay = document.getElementById("orderIdDisplay");
+
+orderIdDisplay.textContent = `Order ID: ${orderId || 'N/A'}`;
+
+if (!orderId) {
+  trackerContainer.innerHTML = `
+    <div class="error-message">
+      ❌ No order ID provided. Please check your order confirmation.
+    </div>
+  `;
+} else {
+  // Listen for status updates
+  onSnapshot(doc(db, "orders", orderId), (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      renderStatusTracker(data.status, data.time);
+    } else {
+      trackerContainer.innerHTML = `
+        <div class="error-message">
+          ❌ Order not found. Please check the order ID.
+        </div>
+      `;
+    }
+  }, (error) => {
+    trackerContainer.innerHTML = `
+      <div class="error-message">
+        ❌ Error loading order: ${error.message}
+      </div>
+    `;
+  });
+}
+
+function renderStatusTracker(status, time) {
+  const steps = [
+    {
+      id: 'Pending',
+      icon: '🟡',
+      title: 'Order Received',
+      description: 'Your order has been received and is waiting to be prepared'
+    },
+    {
+      id: 'Preparing',
+      icon: '🔥',
+      title: 'Preparing',
+      description: 'Our chef is preparing your delicious meal'
+    },
+    {
+      id: 'Served',
+      icon: '✅',
+      title: 'Served',
+      description: 'Your order is ready and being served to you!'
+    }
+  ];
+
+  const statusIndex = steps.findIndex(step => step.id === status);
+
+  let html = '';
+  steps.forEach((step, index) => {
+    const isActive = index <= statusIndex;
+    html += `
+      <div class="status-step ${isActive ? 'active' : ''}">
+        <div class="status-icon">${step.icon}</div>
+        <div class="status-content">
+          <div class="status-title">${step.title}</div>
+          <div class="status-description">${step.description}</div>
+          ${index === statusIndex ? `<div class="status-time">Updated at: ${time}</div>` : ''}
+        </div>
+      </div>
+    `;
+  });
+
+  if (status === 'Served') {
+    html += `
+      <div class="success-message">
+        <h2>🎉 Enjoy Your Meal!</h2>
+        <p>Thank you for dining with THE ROY FINE DINE</p>
+      </div>
+    `;
+  }
+
+  trackerContainer.innerHTML = html;
+}
+</script>
+
+</body>
+</html>

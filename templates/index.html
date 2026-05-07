@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>THE ROY FINE DINE RESTAURANT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f8f9fa;
+      overflow-x: hidden;
+    }
+
+    /* Hero Header */
+    .hero-header {
+      height: 280px;
+      background: url("{{ url_for('static', filename='cover.jpg') }}") center/cover no-repeat;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(211, 47, 47, 0.8), rgba(255, 111, 97, 0.8));
+      animation: gradientShift 8s ease infinite;
+      background-size: 200% 200%;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .overlay {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      animation: fadeInDown 1s ease;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid white;
+      margin-bottom: 15px;
+      object-fit: cover;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: scaleIn 0.8s ease;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .overlay h1 {
+      margin: 10px 0;
+      font-size: 32px;
+      font-weight: bold;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .overlay p {
+      font-size: 16px;
+      opacity: 0.95;
+      letter-spacing: 1px;
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+      margin: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      border-radius: 15px;
+      text-align: center;
+      font-weight: bold;
+      color: #d32f2f;
+      box-shadow: 0 5px 20px rgba(211, 47, 47, 0.15);
+      animation: slideInLeft 0.8s ease;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* Search Box */
+    .search-box {
+      padding: 15px 20px;
+      position: sticky;
+      top: 0;
+      background: #f8f9fa;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 15px 20px;
+      border-radius: 30px;
+      border: 2px solid #e0e0e0;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #d32f2f;
+      box-shadow: 0 0 0 4px rgba(211, 47, 47, 0.1);
+    }
+
+    /* Tabs */
+    #tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 12px;
+      padding: 15px 20px;
+      position: sticky;
+      top: 70px;
+      background: #f8f9fa;
+      z-index: 99;
+      scrollbar-width: none;
+    }
+
+    #tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    #tabs button {
+      padding: 10px 20px;
+      border: 2px solid transparent;
+      border-radius: 25px;
+      background: white;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    #tabs button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .active-tab {
+      background: linear-gradient(135deg, #d32f2f, #ff6f61) !important;
+      color: white !important;
+      border-color: transparent;
+      box-shadow: 0 5px 20px rgba(211, 47, 47, 0.3) !important;
+    }
+
+    /* Container */
+    .container {
+      padding: 20px 20px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 30px 0 15px;
+      color: #333;
+      font-size: 24px;
+      font-weight: bold;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Menu Items */
+    .item {
+      background: white;
+      margin: 15px 0;
+      padding: 20px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .item img {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      margin-right: 15px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .item-price {
+      font-size: 20px;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .controls button {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: linear-gradient(135deg, #d32f2f, #ff6f61);
+      color: white;
+      border-radius: 50%;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 10px rgba(211, 47, 47, 0.3);
+    }
+
+    .controls button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 5px 15px rgba(211, 47, 47, 0.4);
+    }
+
+    .controls button:active {
+      transform: scale(0.95);
+    }
+
+    .controls span {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    /* Floating Cart */
+    .cart {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      z-index: 1000;
+      animation: slideUpCart 0.8s ease;
+    }
+
+    @keyframes slideUpCart {
+      from {
+        opacity: 0;
+        transform: translateY(100px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cart button {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #28a745, #20bf55);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .cart button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(40, 167, 69, 0.5);
+    }
+
+    .cart button:active {
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .overlay h1 {
+        font-size: 24px;
+      }
+      
+      .item {
+        padding: 15px;
+      }
+      
+      .item img {
+        width: 70px;
+        height: 70px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="hero-header">
+  <div class="overlay">
+    <img src="{{ url_for('static', filename='roy.jpg') }}" class="logo">
+    <h1>THE ROY FINE DINE</h1>
+    <p>✨ Fine Dining Experience • Delicious Food • Fast Service ✨</p>
+  </div>
+</div>
+
+<div class="welcome-banner">
+  🍽️ Welcome to THE ROY FINE DINE - Where Every Meal is a Royal Experience!
+</div>
+
+<div class="search-box">
+  <input type="text" id="searchInput" placeholder="🔍 Search for your favorite dishes..." onkeyup="filterMenu()">
+</div>
+
+
+<div id="tabs"></div>
+
+<div class="container"></div>
+
+<div class="cart">
+  <button onclick="placeOrder()">
+    🛒 Place Order | <span id="total">₹0</span>
+  </button>
+</div>
+
+<script>
+const menu = {
+  "🥣 Soups": [
+    {name: "Chicken Hot & Sour Soup", price: 214.5, img: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=100&h=100&fit=crop"},
+    {name: "Veg Manchow Soup", price: 195, img: "https://images.unsplash.com/photo-1603105037880-880cd4f8be00?w=100&h=100&fit=crop"}
+  ],
+  "🍗 Starters": [
+    {name: "Chicken Manchurian", price: 359.1, img: "https://images.unsplash.com/photo-1606525437679-037aca74b44d?w=100&h=100&fit=crop"},
+    {name: "Paneer Chilli", price: 339.15, img: "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=100&h=100&fit=crop"}
+  ],
+  "🍔 Burgers": [
+    {name: "Veg Burger", price: 290, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=100&h=100&fit=crop"},
+    {name: "Chicken Burger", price: 310, img: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=100&h=100&fit=crop"}
+  ],
+  "🍜 Noodles": [
+    {name: "Hakka Noodles Veg", price: 230, img: "https://images.unsplash.com/photo-1585032226651-75cb64c5fed8?w=100&h=100&fit=crop"},
+    {name: "Hakka Noodles Chicken", price: 265, img: "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?w=100&h=100&fit=crop"}
+  ],
+  "🍕 Pizza": [
+    {name: "Margherita Pizza", price: 450, img: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=100&h=100&fit=crop"},
+    {name: "Chicken Tikka Pizza", price: 550, img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=100&h=100&fit=crop"}
+  ],
+  "🥤 Beverages": [
+    {name: "Cold Coffee", price: 150, img: "https://images.unsplash.com/photo-1517701570920-49687e0c4b3a?w=100&h=100&fit=crop"},
+    {name: "Fresh Lime Soda", price: 120, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed214?w=100&h=100&fit=crop"}
+  ]
+};
+
+const container = document.querySelector(".container");
+const tabs = document.getElementById("tabs");
+
+let allItems = [];
+let currentCategory = null;
+
+// ALL TAB
+const allTab = document.createElement("button");
+allTab.innerText = "🍴 All Items";
+allTab.classList.add("active-tab");
+
+allTab.onclick = () => {
+  currentCategory = null;
+  document.getElementById("searchInput").value = "";
+  setActiveTab(allTab);
+  renderMenu(menu);
+};
+
+tabs.appendChild(allTab);
+
+// CATEGORY TABS
+for (let category in menu) {
+  const tab = document.createElement("button");
+  tab.innerText = category;
+
+  tab.onclick = () => {
+    currentCategory = category;
+    document.getElementById("searchInput").value = "";
+    setActiveTab(tab);
+    showCategory(category);
+  };
+
+  tabs.appendChild(tab);
+}
+
+function setActiveTab(btn) {
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.remove("active-tab"));
+  btn.classList.add("active-tab");
+}
+
+function renderMenu(data) {
+  container.innerHTML = "";
+  allItems = [];
+
+  for (let category in data) {
+    const title = document.createElement("h2");
+    title.innerText = category;
+    container.appendChild(title);
+
+    data[category].forEach(item => {
+      const safeId = "qty-" + item.name.replace(/\s+/g, '-');
+
+      const div = document.createElement("div");
+      div.className = "item";
+
+      div.innerHTML = `
+        <img src="${item.img}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/80?text=Food'">
+        <div class="item-info">
+          <div class="item-name">${item.name}</div>
+          <div class="item-price">₹${item.price.toFixed(2)}</div>
+        </div>
+        <div class="controls">
+          <button onclick="addItem('${item.name}',${item.price})">+</button>
+          <span id="${safeId}">0</span>
+          <button onclick="removeItem('${item.name}')">−</button>
+        </div>
+      `;
+
+      container.appendChild(div);
+      allItems.push({category, ...item});
+    });
+  }
+}
+
+function filterMenu() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+
+  if (search === "") {
+    if (currentCategory) showCategory(currentCategory);
+    else renderMenu(menu);
+    return;
+  }
+
+  const filtered = {};
+
+  allItems.forEach(item => {
+    if (item.name.toLowerCase().includes(search)) {
+      if (!filtered[item.category]) filtered[item.category] = [];
+      filtered[item.category].push(item);
+    }
+  });
+
+  renderMenu(filtered);
+}
+
+function showCategory(category) {
+  const filtered = {};
+  filtered[category] = menu[category];
+  renderMenu(filtered);
+}
+
+renderMenu(menu);
+
+</script>
+
+<script type="module" src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
